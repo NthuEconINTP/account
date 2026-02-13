@@ -19,4 +19,12 @@ public class SecurityUtil {
             throw new RuntimeException("No permission");
         }
     }
+    
+    public static Long getCurrentUserId() {
+        CustomUserPrincipal user = getCurrentUser();
+        if (user == null) {
+            return null;
+        }
+        return user.getUserId();  // <- 確認你的 CustomUserPrincipal 有 getId()
+    }
 }

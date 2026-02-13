@@ -31,7 +31,7 @@ public class CustomUserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null; // 可自己映射 role → GrantedAuthority ==>以後再補
+        return null; // 可自己映射 role → GrantedAuthority ==>以後再補，目前傾向自己控制RBAC不交給security
     }
 
     @Override

@@ -42,13 +42,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Optional<User> optionalUser = userRepository.findById(userId);
                 if (optionalUser.isPresent()) {
                     User user = optionalUser.get();
-
+                   
                     CustomUserPrincipal principal = new CustomUserPrincipal(
                             user.getId(),
                             user.getUsername(),
                             user.getRole(),
                             user.getIsActive()
-                    );
+                    );//會在這邊統一存入user資訊，這樣後端就可以無腦CALL
 
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(principal, null, null);
