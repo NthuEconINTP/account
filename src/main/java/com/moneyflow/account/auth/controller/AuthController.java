@@ -5,6 +5,9 @@ import com.moneyflow.account.auth.dto.LoginResponse;
 import com.moneyflow.account.auth.dto.RegisterRequest;
 import com.moneyflow.account.auth.entity.User;
 import com.moneyflow.account.auth.service.AuthService;
+import com.moneyflow.account.common.ApiResponse;
+import com.moneyflow.account.common.ApiResponseUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,13 +20,11 @@ public class AuthController {
 
     // ===== 註冊 =====
     @PostMapping("/register")
-    public User register(@RequestBody RegisterRequest request) throws Exception {
-        return authService.register(
-                request.getUsername(),
-                request.getPassword(),
-                request.getEmail(),
-                request.getRole()
-        );
+    public ApiResponse<User> register(@RequestBody RegisterRequest dto) throws Exception  {
+    	
+    	User user = authService.register(dto.getUsername(), dto.getPassword(), dto.getEmail(), null); //這邊寫的不好 故意留著
+    	return ApiResponseUtil.success("Register success", user);
+     
     }
 
     // ===== 登入 =====
