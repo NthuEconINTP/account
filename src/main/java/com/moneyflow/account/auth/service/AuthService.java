@@ -57,7 +57,7 @@ public class AuthService {
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(rawPassword));
         user.setEmail(email);
-        user.setIsActive(true);
+        user.setIsActive(true); //預設先全部都都設為打開
         user.setRole(role != null ? role : "USER");
 
         return userRepository.save(user);

@@ -24,7 +24,7 @@ public class AppConfig {
 
 	// 這個檔案在介紹我的記賬API
     @Bean
-    public OpenAPI customOpenAPI() {
+    OpenAPI customOpenAPI() {
         return new OpenAPI()
             .info(new Info()
                 .title("My Account API")
@@ -48,7 +48,7 @@ public class AppConfig {
 	}
 
 	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
 		http.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(auth -> auth

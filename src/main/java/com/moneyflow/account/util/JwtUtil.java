@@ -10,7 +10,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-	private static final String SECRET_KEY = "YourSuperSecretKeyChangeMe!MustBeLongEnough123"; // key 要夠長
+	private static final String SECRET_KEY = "YourSuperSecretKeyChangeMe!MustBeLongEnough123"; // key 要夠長 //以後要記得改，需要放到config檔案統一去改
     private static final long EXPIRATION_MS = 24 * 60 * 60 * 1000; // 24小時
 
     private Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());

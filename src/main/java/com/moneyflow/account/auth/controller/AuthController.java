@@ -29,16 +29,16 @@ public class AuthController {
 
     // ===== 登入 =====
     @PostMapping("/login")
-    public LoginResponse login(@RequestBody LoginRequest request) throws Exception {
-    	System.out.println("token1");
+    public ApiResponse<LoginResponse> login(@RequestBody LoginRequest request) throws Exception {
+//    	System.out.println("token1");
         String token = authService.login(
                 request.getUsername(),
                 request.getPassword()
               
         );
-        System.out.println("token: "+token);
+//        System.out.println("token: "+token);
         LoginResponse response = new LoginResponse();
         response.setToken(token);
-        return response;
+        return ApiResponseUtil.success("Login success",  response);
     }
 }
