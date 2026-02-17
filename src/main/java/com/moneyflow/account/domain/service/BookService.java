@@ -38,6 +38,7 @@ public class BookService {
                 .orElseThrow(() -> new RuntimeException("Book not found"));
 
         if (!book.getIsActive()) {
+        	System.out.println("This book has been removed.");
             return book; // 已經刪除就回傳
         }
 
