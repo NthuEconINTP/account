@@ -22,7 +22,7 @@ public class AuthService {
     private BCryptPasswordEncoder passwordEncoder;
 
     // ===== 登入 =====
-    public String login(String username, String password) throws Exception {
+    public User login(String username, String password) throws Exception {
         Optional<User> optionalUser = userRepository.findByUsername(username);
         if (!optionalUser.isPresent()) {
             throw new Exception("User not found");
@@ -39,7 +39,7 @@ public class AuthService {
         }
 
         // 呼叫 JwtUtil 生成 token
-        return jwtUtil.generateToken(user.getId(), user.getUsername(), user.getRole());
+        return user;
     }
 
     // ===== 註冊 =====
