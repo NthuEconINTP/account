@@ -34,13 +34,13 @@ public class BookController {
     @DeleteMapping("/{id}")
     public ApiResponse<Book> delete(@PathVariable Long id) {
         Book deletedBook = bookService.softDelete(id);
-        return ApiResponseUtil.success("",deletedBook);
+        return ApiResponseUtil.success("delete single book",deletedBook);
     }
 
     // ===== 軟刪除批次 =====
     @DeleteMapping
     public ApiResponse<List<Book>> deleteBatch(@RequestBody List<Long> ids) {
         List<Book> deletedBooks = bookService.softDelete(ids);
-        return ApiResponseUtil.success("",deletedBooks);
+        return ApiResponseUtil.success("delete books",deletedBooks);
     }
 }
