@@ -37,7 +37,7 @@ public class BookController {
     public ApiResponse<Book> create(@RequestBody Book book) {
 
         Book createdBook = bookService.create(book);
-        return ApiResponseUtil.success("",createdBook);
+        return ApiResponseUtil.success("新增帳本成功",createdBook);
     }
     
     /**

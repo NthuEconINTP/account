@@ -11,4 +11,6 @@ public  interface BookRepository extends JpaRepository<Book, Long>{
     
     // 新增：檢查該用戶下，除了某個 ID 以外，是否已有同名帳本
     boolean existsByUserIdAndNameAndIdNot(Long userId, String name, Long id);
+
+	boolean existsByIdAndUserId(Long bookId, Long userId);// 第一個參數其實就是bookid
 }

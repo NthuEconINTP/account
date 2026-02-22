@@ -7,4 +7,6 @@ import com.moneyflow.account.domain.entity.Category;
 
 public interface CategoryRepository extends JpaRepository<Category, Long>{
 
+	boolean existsByBookIdAndNameAndIdNot(Long bookId, String name, Long categoryId);
+
 }
