@@ -83,10 +83,32 @@ public class CategoryController {
         
         // 呼叫 Service 進行多條件查詢
         Page<Category> categoryPage = categoryService.findByCondition(searchCategory, pageable);
-        
+        //Page<Category> categoryPage = categoryService.findByConditionByJdbc(searchCategory, pageable);
         return ApiResponseUtil.success("查詢分類成功", categoryPage);
     }
     
-    
+    @PostMapping("/searchByJdbc")
+    public ApiResponse<Page<Category>> searchByJdbc(
+            @RequestBody(required = false) Category searchCategory, // 接收查詢條件
+            @ParameterObject @PageableDefault(
+                size = 10, 
+                sort = "createdAt", 
+                direction = Sort.Direction.DESC
+            ) Pageable pageable) {
+        
+        if (searchCategory == null) {
+            searchCategory = new Category();
+        }
+
+        // 安全檢查：分類查詢通常必須指定 bookId，
+        // 確保使用者只能查詢到屬於該帳本的分類
+        if (searchCategory.getBookId() == null) {
+            return ApiResponseUtil.error("查詢失敗：必須指定帳本 ID");
+        }
+        
+        // 呼叫 Service 進行多條件查詢
+        Page<Category> categoryPage = categoryService.findByConditionByJdbc(searchCategory, pageable);
+        return ApiResponseUtil.success("查詢分類成功", categoryPage);
+    }
     
 }

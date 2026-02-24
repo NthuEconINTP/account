@@ -1,13 +1,17 @@
 package com.moneyflow.account.domain.service;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.moneyflow.account.auth.security.SecurityUtil;
@@ -16,7 +20,10 @@ import com.moneyflow.account.domain.repository.BookRepository;
 import com.moneyflow.account.domain.repository.CategoryRepository;
 @Service
 public class CategoryService {
-
+	
+	@Autowired
+	JdbcTemplate jdbcTemplate;
+	
 	@Autowired
 	CategoryRepository categoryRepository;
 
@@ -191,6 +198,68 @@ public class CategoryService {
 
         Example<Category> example = Example.of(searchCategory, matcher);
         return categoryRepository.findAll(example, pageable);
+    }
+    
+    public Page<Category> findByConditionByJdbc(Category search, Pageable pageable) {
+        // 1. 安全檢查 (保留妳原有的邏輯)
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        Long targetBookId = search.getBookId();
+        if (targetBookId == null) {
+            throw new RuntimeException("查詢失敗：必須指定帳本 ID");
+        }
+        
+        boolean isOwner = bookRepository.existsByIdAndUserId(targetBookId, currentUserId);
+        if (!isOwner) {
+            throw new RuntimeException("權限不足：您無權查看此帳本的分類");
+        }
+
+        // 2. 建立基礎條件 SQL (不含 SELECT, ORDER BY 和 LIMIT)
+        // 這樣這段 SQL 才能同時給「查資料」和「查總數」共用
+        StringBuilder whereSql = new StringBuilder(" FROM category WHERE book_id = ? AND type = ?");
+        List<Object> params = new ArrayList<>();
+        params.add(targetBookId);
+        params.add(search.getType().name());
+
+        // 狀態過濾
+        if (search.getIsActive() != null) {
+            whereSql.append(" AND is_active = ?");
+            params.add(search.getIsActive());
+        }
+
+        // 關鍵字搜尋 (Name OR Note)
+        if (search.getName() != null && !search.getName().trim().isEmpty()) {
+            whereSql.append(" AND (name LIKE ? OR note LIKE ?)");
+            String keyword = "%" + search.getName().trim() + "%";
+            params.add(keyword);
+            params.add(keyword);
+        }
+
+        // 3. 查詢總筆數 (totalCount)
+        // 注意：必須在加上 LIMIT 之前查總數
+        String countSql = "SELECT COUNT(*)" + whereSql.toString();
+        // 使用 queryForObject 取得單一數字
+        Long totalCount = jdbcTemplate.queryForObject(countSql, Long.class, params.toArray());
+        
+        // 如果 totalCount 為 null (理論上不會)，設為 0
+        long total = (totalCount != null) ? totalCount : 0L;
+
+        // 4. 查詢分頁資料
+        StringBuilder dataSql = new StringBuilder("SELECT *" + whereSql.toString());
+        dataSql.append(" ORDER BY created_at DESC LIMIT ? OFFSET ?");
+        
+        // 建立一個新的參數清單，加上分頁參數
+        List<Object> dataParams = new ArrayList<>(params);
+        dataParams.add(pageable.getPageSize());
+        dataParams.add(pageable.getOffset());
+
+        List<Category> list = jdbcTemplate.query(
+            dataSql.toString(), 
+            new BeanPropertyRowMapper<>(Category.class), 
+            dataParams.toArray()
+        );
+
+        // 5. 使用 PageImpl 回傳，前端 Vue 就能拿到完整的分頁資訊
+        return new PageImpl<>(list, pageable, total);
     }
     
 }
