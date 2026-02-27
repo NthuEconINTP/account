@@ -24,7 +24,9 @@ public class Transaction {
     @Column(nullable = false)
     private Long userId;
 
-
+    @Column(length = 200)
+    private String name;
+    
     @Enumerated(EnumType.STRING)
     @Column(name = "transaction_type", nullable = false, length = 20)
     private TransactionType type;
@@ -134,6 +136,15 @@ public class Transaction {
 	public void setLastUpdatedAt(LocalDateTime lastUpdatedAt) {
 		this.lastUpdatedAt = lastUpdatedAt;
 	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
     
+	
     
 }
