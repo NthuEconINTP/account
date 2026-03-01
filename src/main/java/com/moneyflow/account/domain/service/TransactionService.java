@@ -25,6 +25,7 @@ import com.moneyflow.account.domain.entity.TransactionVO;
 import com.moneyflow.account.domain.repository.BookRepository;
 import com.moneyflow.account.domain.repository.CategoryRepository;
 import com.moneyflow.account.domain.repository.TransactionRepository;
+import com.moneyflow.account.dto.request.TransactionSearchRequest;
 
 @Service
 public class TransactionService {
@@ -154,8 +155,8 @@ public class TransactionService {
 //    
 
 
-    public Page<TransactionVO> findByCondition(Transaction searchCriteria, Pageable pageable) {
-        // 基礎 SQL 語句
+    public Page<TransactionVO> findByCondition(TransactionSearchRequest req, Pageable pageable) {
+        // 1. 基礎 SQL
         String baseSql = " FROM tb_transactions t " +
                          " LEFT JOIN tb_categories c ON t.category_id = c.id " +
                          " WHERE t.is_active = true ";
@@ -163,45 +164,46 @@ public class TransactionService {
         StringBuilder whereSql = new StringBuilder();
         MapSqlParameterSource params = new MapSqlParameterSource();
 
-        // --- 動態條件過濾 ---
-        if (searchCriteria.getBookId() != null) {
+        // 2. 動態條件拼接
+        if (req.getBookId() != null) {
             whereSql.append(" AND t.book_id = :bookId ");
-            params.addValue("bookId", searchCriteria.getBookId());
+            params.addValue("bookId", req.getBookId());
         }
-        if (searchCriteria.getUserId() != null) {
-            whereSql.append(" AND t.user_id = :userId ");
-            params.addValue("userId", searchCriteria.getUserId());
+        if (req.getCategoryId() != null) {
+            whereSql.append(" AND t.category_id = :categoryId ");
+            params.addValue("categoryId", req.getCategoryId());
         }
-        if (searchCriteria.getType() != null) {
+        if (req.getType() != null) {
             whereSql.append(" AND t.transaction_type = :type ");
-            params.addValue("type", searchCriteria.getType().name());
+            params.addValue("type", req.getType());
         }
-
-        // 1. 查詢總筆數 (Count)
+        if (req.getKeywords() != null && !req.getKeywords().isBlank()) {
+            whereSql.append(" AND (t.name LIKE :kw OR t.note LIKE :kw) ");
+            params.addValue("kw", "%" + req.getKeywords() + "%");
+        }
+        if (req.getStartDate() != null) {
+            whereSql.append(" AND t.transaction_date >= :startDate ");
+            params.addValue("startDate", req.getStartDate());
+        }
+        if (req.getEndDate() != null) {
+            whereSql.append(" AND t.transaction_date <= :endDate ");
+            params.addValue("endDate", req.getEndDate());
+        }
+   
+        // 1. 查詢總筆數
         String countSql = "SELECT COUNT(*) " + baseSql + whereSql.toString();
         Long total = jdbcTemplate.queryForObject(countSql, params, Long.class);
 
-        // 2. 查詢資料 (Data)
+        // 2. 查詢資料 (固定排序，不理會前端傳什麼)
+        // 建議固定用「交易日期」或「建立時間」降冪，這對記帳軟體最直覺
         StringBuilder dataSql = new StringBuilder("SELECT t.*, c.name AS categoryName ");
         dataSql.append(baseSql).append(whereSql);
-
-        // 排序處理 (將 Pageable 的屬性轉為 DB 欄位)
-        String sortOrder = pageable.getSort().stream()
-            .map(order -> {
-                // 這裡簡單處理駝峰轉下底線，例如 createdAt -> created_at
-                String col = order.getProperty().replaceAll("([a-z])([A-Z]+)", "$1_$2").toLowerCase();
-                return "t." + col + " " + order.getDirection();
-            })
-            .collect(Collectors.joining(", "));
-        
-        dataSql.append(" ORDER BY ").append(sortOrder.isEmpty() ? "t.created_at DESC" : sortOrder);
-        
-        // 分頁處理
+        dataSql.append(" ORDER BY t.transaction_date DESC, t.id DESC "); // 保底排序，確保分頁不亂
         dataSql.append(" LIMIT :limit OFFSET :offset ");
+        
         params.addValue("limit", pageable.getPageSize());
         params.addValue("offset", pageable.getOffset());
 
-        // 3. 執行並自動封裝
         List<TransactionVO> list = jdbcTemplate.query(
             dataSql.toString(),
             params,
@@ -210,5 +212,10 @@ public class TransactionService {
 
         return new PageImpl<>(list, pageable, total != null ? total : 0L);
     }
+
+//	public Page<Transaction> findByCondition(Transaction searchTx, Pageable pageable) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
     
 }

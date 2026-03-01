@@ -15,7 +15,9 @@ import com.moneyflow.account.auth.security.SecurityUtil;
 import com.moneyflow.account.common.ApiResponse;
 import com.moneyflow.account.common.ApiResponseUtil;
 import com.moneyflow.account.domain.entity.Transaction;
+import com.moneyflow.account.domain.entity.TransactionVO;
 import com.moneyflow.account.domain.service.TransactionService;
+import com.moneyflow.account.dto.request.TransactionSearchRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -86,19 +88,19 @@ public class TransactionController {
         return ApiResponseUtil.success("刪除多筆交易成功", deleted);
     }
 
-//    @PostMapping("/search")
-//    public ApiResponse<Page<Transaction>> search(
-//            @RequestBody(required = false) Transaction searchTx,
-//            @ParameterObject @PageableDefault(
-//                size = 10,
-//                sort = "transactionDate",
-//                direction = Sort.Direction.DESC
-//            ) Pageable pageable) {
-//
-//        if (searchTx == null) searchTx = new Transaction();
-//        searchTx.setUserId(SecurityUtil.getCurrentUserId());
-//
-//        Page<Transaction> page = transactionService.findByCondition(searchTx, pageable);
-//        return ApiResponseUtil.success("查詢交易成功", page);
-//    }
+    @PostMapping("/search")
+    public ApiResponse<Page<TransactionVO>> search(
+            @RequestBody(required = false) TransactionSearchRequest searchTx,
+            @ParameterObject @PageableDefault(
+                size = 10,
+                sort = "transactionDate",
+                direction = Sort.Direction.DESC
+            ) Pageable pageable) {
+
+        if (searchTx == null) searchTx = new TransactionSearchRequest();
+
+        Page<TransactionVO> page = transactionService.findByCondition(searchTx, pageable);
+        return ApiResponseUtil.success("查詢交易成功", page);
+    }
+    
 }

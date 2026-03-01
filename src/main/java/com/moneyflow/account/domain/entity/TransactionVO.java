@@ -8,4 +8,5 @@ public class TransactionVO {
     // Getter & Setter
     public String getCategoryName() { return categoryName; }
     public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
+    
 }
