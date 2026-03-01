@@ -144,6 +144,14 @@ public class Transaction {
 	public void setName(String name) {
 		this.name = name;
 	}
+
+	@Override
+	public String toString() {
+		return "Transaction [id=" + id + ", bookId=" + bookId + ", categoryId=" + categoryId + ", userId=" + userId
+				+ ", name=" + name + ", type=" + type + ", amount=" + amount + ", transactionDate=" + transactionDate
+				+ ", isActive=" + isActive + ", note=" + note + ", createdAt=" + createdAt + ", lastUpdatedAt="
+				+ lastUpdatedAt + "]";
+	}
     
 	
     

@@ -185,18 +185,30 @@ public class TransactionService {
             whereSql.append(" AND t.transaction_date >= :startDate ");
             params.addValue("startDate", req.getStartDate());
         }
+//        if (req.getEndDate() != null) {
+//            whereSql.append(" AND t.transaction_date <= :endDate ");
+//            params.addValue("endDate", req.getEndDate());
+//        }
+        
         if (req.getEndDate() != null) {
-            whereSql.append(" AND t.transaction_date <= :endDate ");
-            params.addValue("endDate", req.getEndDate());
+            whereSql.append(" AND t.transaction_date < :endDatePlusOne "); // 改用小於
+            params.addValue("endDatePlusOne", req.getEndDate().plusDays(1)); // 
         }
-   
+        
+        
         // 1. 查詢總筆數
         String countSql = "SELECT COUNT(*) " + baseSql + whereSql.toString();
         Long total = jdbcTemplate.queryForObject(countSql, params, Long.class);
 
         // 2. 查詢資料 (固定排序，不理會前端傳什麼)
         // 建議固定用「交易日期」或「建立時間」降冪，這對記帳軟體最直覺
-        StringBuilder dataSql = new StringBuilder("SELECT t.*, c.name AS categoryName ");
+        StringBuilder dataSql = new StringBuilder(
+        	    "SELECT t.id, t.book_id, t.category_id, t.user_id, t.name, " +
+        	    "t.amount, t.transaction_date, t.note, t.is_active, t.created_at, t.last_updated_at, " +
+        	    "t.transaction_type AS type, " + // 關鍵：把 transaction_type 對應到 VO 的 type
+        	    "c.name AS categoryName "
+        	);
+        
         dataSql.append(baseSql).append(whereSql);
         dataSql.append(" ORDER BY t.transaction_date DESC, t.id DESC "); // 保底排序，確保分頁不亂
         dataSql.append(" LIMIT :limit OFFSET :offset ");
