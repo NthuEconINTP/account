@@ -37,17 +37,17 @@ public class BookController {
     public ApiResponse<Book> create(@RequestBody Book book) {
 
         Book createdBook = bookService.create(book);
-        return ApiResponseUtil.success("新增帳本成功",createdBook);
+        return ApiResponseUtil.success("新增帳本成功", createdBook);
     }
-    
+
     /**
      * 更新帳本
      * ID 直接包含在 Book 物件內
      */
     @PutMapping
-    //理論上只會讓人改book.name還有book.note
+    // 理論上只會讓人改book.name還有book.note
     public ApiResponse<Book> update(@RequestBody Book book) {
-        
+
         Book updatedBook = bookService.update(book);
         return ApiResponseUtil.success("帳本更新成功", updatedBook);
     }
@@ -56,41 +56,41 @@ public class BookController {
     @DeleteMapping("/{id}")
     public ApiResponse<Book> delete(@PathVariable Long id) {
         Book deletedBook = bookService.softDelete(id);
-        return ApiResponseUtil.success("delete single book",deletedBook);
+        return ApiResponseUtil.success("delete single book", deletedBook);
     }
 
     // ===== 軟刪除批次 =====
     @DeleteMapping
     public ApiResponse<List<Book>> deleteBatch(@RequestBody List<Long> ids) {
         List<Book> deletedBooks = bookService.softDelete(ids);
-        return ApiResponseUtil.success("delete books",deletedBooks);
+        return ApiResponseUtil.success("delete books", deletedBooks);
     }
 
-//    @PostMapping("/search")
-//    public ApiResponse<List<Book>> search(@RequestBody Book filter,
-//                                          @RequestParam(name = "sortBy", defaultValue = "id") String sortBy,
-//                                          @RequestParam(name = "order", defaultValue = "asc") String order) {
-//        Sort sort = "desc".equalsIgnoreCase(order) ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
-//        List<Book> books = bookService.findAll(filter, sort);
-//        return ApiResponseUtil.success("list books", books);
-//    }
-    
+    // @PostMapping("/search")
+    // public ApiResponse<List<Book>> search(@RequestBody Book filter,
+    // @RequestParam(name = "sortBy", defaultValue = "id") String sortBy,
+    // @RequestParam(name = "order", defaultValue = "asc") String order) {
+    // Sort sort = "desc".equalsIgnoreCase(order) ? Sort.by(sortBy).descending() :
+    // Sort.by(sortBy).ascending();
+    // List<Book> books = bookService.findAll(filter, sort);
+    // return ApiResponseUtil.success("list books", books);
+    // }
+
     @PostMapping("/search")
     public ApiResponse<Page<Book>> search(
             @RequestBody(required = false) Book searchBook, // 接收 Body (data)
-            @ParameterObject @PageableDefault(              // 接收 URL 參數 (params)
-                size = 10, 
-                sort = "createdAt", 
-                direction = Sort.Direction.DESC
-            ) Pageable pageable) {
-        
-        if (searchBook == null) searchBook = new Book();
-        
+            @ParameterObject @PageableDefault( // 接收 URL 參數 (params)
+                    size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        if (searchBook == null) {
+            searchBook = new Book();
+        }
+
         // 強制設定為當前使用者
         searchBook.setUserId(SecurityUtil.getCurrentUserId());
-        
+
         Page<Book> books = bookService.findByCondition(searchBook, pageable);
         return ApiResponseUtil.success("查詢成功", books);
     }
-    
+
 }

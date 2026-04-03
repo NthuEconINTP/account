@@ -11,43 +11,43 @@ import com.moneyflow.account.domain.enums.TransactionType;
 @Table(name = "TB_TRANSACTIONS")
 public class Transaction {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(nullable = false)
-    private Long bookId;
+	@Column(nullable = false)
+	private Long bookId;
 
-    @Column(nullable = false)
-    private Long categoryId;
+	@Column(nullable = false)
+	private Long categoryId;
 
-    @Column(nullable = false)
-    private Long userId;
+	@Column(nullable = false)
+	private Long userId;
 
-    @Column(length = 200)
-    private String name;
-    
-    @Enumerated(EnumType.STRING)
-    @Column(name = "transaction_type", nullable = false, length = 20)
-    private TransactionType type;
+	@Column(length = 200)
+	private String name;
 
-    @Column(nullable = false, precision = 18, scale = 2)
-    private BigDecimal amount;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "transaction_type", nullable = false, length = 20)
+	private TransactionType type;
 
-    @Column(nullable = false)
-    private LocalDate transactionDate;
+	@Column(nullable = false, precision = 18, scale = 2)
+	private BigDecimal amount;
 
-    @Column(nullable = false)
-    private Boolean isActive = true;
-    
-    @Column(length = 500)
-    private String note;
+	@Column(nullable = false)
+	private LocalDate transactionDate;
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
+	@Column(nullable = false)
+	private Boolean isActive = true;
 
-    @Column(nullable = false)
-    private LocalDateTime lastUpdatedAt;
+	@Column(length = 500)
+	private String note;
+
+	@Column(nullable = false)
+	private LocalDateTime createdAt;
+
+	@Column(nullable = false)
+	private LocalDateTime lastUpdatedAt;
 
 	public Long getId() {
 		return id;
@@ -112,14 +112,14 @@ public class Transaction {
 	public void setNote(String note) {
 		this.note = note;
 	}
-    
-    public Boolean getIsActive() {
-        return isActive;
-    }
-    
-    public void setIsActive(Boolean isActive) {
-        this.isActive = isActive;
-    }
+
+	public Boolean getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(Boolean isActive) {
+		this.isActive = isActive;
+	}
 
 	public LocalDateTime getCreatedAt() {
 		return createdAt;
@@ -145,14 +145,4 @@ public class Transaction {
 		this.name = name;
 	}
 
-	@Override
-	public String toString() {
-		return "Transaction [id=" + id + ", bookId=" + bookId + ", categoryId=" + categoryId + ", userId=" + userId
-				+ ", name=" + name + ", type=" + type + ", amount=" + amount + ", transactionDate=" + transactionDate
-				+ ", isActive=" + isActive + ", note=" + note + ", createdAt=" + createdAt + ", lastUpdatedAt="
-				+ lastUpdatedAt + "]";
-	}
-    
-	
-    
 }

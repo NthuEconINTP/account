@@ -27,7 +27,7 @@ public class AuthController {
     	
     	User user = authService.register(dto.getUsername(), dto.getPassword(), dto.getEmail(), null); //這邊寫的不好 故意留著
     	return ApiResponseUtil.success("Register success", user);
-     
+
     }
 
     // ===== 登入 =====

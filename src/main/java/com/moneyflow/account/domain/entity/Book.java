@@ -7,31 +7,31 @@ import java.time.LocalDateTime;
 @Table(name = "TB_BOOKS")
 public class Book {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    // 擁有者
-    @Column(nullable = false)
-    private Long userId;
+	// 擁有者
+	@Column(nullable = false)
+	private Long userId;
 
-    // 帳本名稱
-    @Column(nullable = false)
-    private String name;
+	// 帳本名稱
+	@Column(nullable = false)
+	private String name;
 
-    // 是否啟用
-    @Column(nullable = false)
-    private Boolean isActive = true;
+	// 是否啟用
+	@Column(nullable = false)
+	private Boolean isActive = true;
 
-    // 備註（可為 null）
-    @Column(length = 500)
-    private String note;
+	// 備註（可為 null）
+	@Column(length = 500)
+	private String note;
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
+	@Column(nullable = false)
+	private LocalDateTime createdAt;
 
-    @Column(nullable = false)
-    private LocalDateTime lastUpdatedAt;
+	@Column(nullable = false)
+	private LocalDateTime lastUpdatedAt;
 
 	public Long getId() {
 		return id;
@@ -88,6 +88,5 @@ public class Book {
 	public void setLastUpdatedAt(LocalDateTime lastUpdatedAt) {
 		this.lastUpdatedAt = lastUpdatedAt;
 	}
-    
-    
+
 }
