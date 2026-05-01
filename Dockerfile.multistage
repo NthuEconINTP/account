@@ -1,20 +1,49 @@
 # ===== Stage 1: build jar =====
+# 第一階段：負責「編譯 / 打包」Spring Boot 專案成 jar
+
+# 使用 Maven + Java 17 的 image 當作建置環境
+# AS builder 是幫這個階段取名字，後面可以用 --from=builder 取檔案
 FROM maven:3.9.9-eclipse-temurin-17 AS builder
 
+# 設定 container 裡面的工作目錄
+# 後面的 COPY、RUN 都會以 /build 為目前目錄
 WORKDIR /build
 
+# 把本機的 pom.xml 複製到 container 的 /build/pom.xml
+# 這是 Maven 專案設定檔
 COPY pom.xml .
+
+# 把本機的 src 資料夾複製到 container 的 /build/src
+# 這是你的 Java 原始碼
 COPY src ./src
 
+# 在 container 裡執行 Maven 打包
+# clean：清掉舊的 target
+# package：編譯並打包成 jar
+# -DskipTests：略過測試
 RUN mvn clean package -DskipTests
 
+
 # ===== Stage 2: run jar =====
+# 第二階段：負責「執行」Spring Boot jar
+
+# 使用只有 Java Runtime 的 image
+# 這裡沒有 Maven，也沒有完整 JDK，所以比建置環境乾淨
 FROM eclipse-temurin:17-jre
 
+# 設定正式執行 container 裡面的工作目錄
 WORKDIR /app
 
+# 從第一階段 builder 的 /build/target/*.jar 複製 jar
+# 到第二階段目前目錄 /app，並改名成 app.jar
 COPY --from=builder /build/target/*.jar app.jar
 
+# 宣告這個 container 裡面的應用程式會使用 8080 port
+# 注意：EXPOSE 只是宣告，不等於真的對外開 port
+# 真正對外要靠 docker run -p 或 docker-compose ports
 EXPOSE 8080
 
+# container 啟動時要執行的指令
+# 等同於：java -jar app.jar
+# 因為 WORKDIR 是 /app，所以實際執行的是 /app/app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]
