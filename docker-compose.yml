@@ -4,14 +4,14 @@ services:
     container_name: mysql-container
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: 12111211
-      MYSQL_DATABASE: notebook
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
     ports:
-      - "3307:3306" # 主機 3307 -> container 3306
+      - "${MYSQL_HOST_PORT}:3306"
     volumes:
       - mysql-data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p12111211"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -24,12 +24,12 @@ services:
       mysql:
         condition: service_healthy
     ports:
-      - "8080:8080"
+      - "${APP_HOST_PORT}:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: docker
-      DB_URL: jdbc:mysql://mysql:3306/notebook?useSSL=false&serverTimezone=Asia/Taipei&allowPublicKeyRetrieval=true
-      DB_USERNAME: root
-      DB_PASSWORD: 12111211
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
 
 volumes:
   mysql-data:
