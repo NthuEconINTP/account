@@ -2,16 +2,26 @@ name: Docker CI
 
 on:
   push:
-   branches: [ "master" ]
+    branches: [ "master" ]
   pull_request:
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
-  docker-build:
+  docker-build-and-push:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
 
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
       - name: Build Docker image
-        run: docker build -f Dockerfile.multistage -t account-app:ci .
+        run: docker build -f Dockerfile.multistage -t ghcr.io/${{ github.repository_owner }}/account-app:latest .
+
+      - name: Push Docker image to GHCR
+        run: docker push ghcr.io/${{ github.repository_owner }}/account-app:latest
