@@ -1,3 +1,8 @@
+###services:
+  ###app:
+    ###image: account-app:multi
+
+
 services:
   app:
-    image: account-app:multi
+    image: ghcr.io/nthueconintp/account-app:latest
