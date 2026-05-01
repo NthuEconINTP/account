@@ -1,27 +1,54 @@
+# 這個 GitHub Actions workflow 的名稱
+# 會顯示在 GitHub Repo → Actions 頁面
 name: Docker CI
 
+# 觸發條件
 on:
+  # 當有人 push 程式碼時觸發
   push:
+    # 只監聽 master branch
     branches: [ "master" ]
+
+  # 當有人建立或更新 Pull Request 時也觸發
   pull_request:
 
+# 設定這個 workflow 的 GitHub 權限
 permissions:
+  # 允許讀取 repo 內容，checkout 程式碼需要
   contents: read
+
+  # 允許寫入 GitHub Packages / GHCR
+  # docker push 到 ghcr.io 需要這個權限
   packages: write
 
+# 工作區塊
 jobs:
+  # job 名稱，可以自訂
   docker-build-and-push:
+    # 使用 GitHub 提供的 Ubuntu runner
+    # 這台機器會幫你跑 docker build / docker push
     runs-on: ubuntu-latest
 
+    # 這個 job 要執行的步驟
     steps:
+      # Step 1：把 GitHub repo 的程式碼下載到 runner
       - name: Checkout source code
         uses: actions/checkout@v4
 
+      # Step 2：登入 GitHub Container Registry
+      # secrets.GITHUB_TOKEN 是 GitHub Actions 自動提供的 token
+      # github.actor 是觸發這次 workflow 的 GitHub 使用者
       - name: Login to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
+      # Step 3：用 Dockerfile.multistage 建立 Docker image
+      # -f Dockerfile.multistage：指定使用哪個 Dockerfile
+      # -t ghcr.io/nthueconintp/account-app:latest：幫 image 取 tag
+      # .：build context 是目前 repo 根目錄
       - name: Build Docker image
-        run: docker build -f Dockerfile.multistage -t ghcr.io/${{ github.repository_owner }}/account-app:latest .
+        run: docker build -f Dockerfile.multistage -t ghcr.io/nthueconintp/account-app:latest .
 
+      # Step 4：把剛剛 build 好的 image 推到 GHCR
+      # 成功後，GHCR 裡會出現 account-app:latest
       - name: Push Docker image to GHCR
-        run: docker push ghcr.io/${{ github.repository_owner }}/account-app:latest
+        run: docker push ghcr.io/nthueconintp/account-app:latest
