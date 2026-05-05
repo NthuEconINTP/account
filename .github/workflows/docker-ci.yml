@@ -7,7 +7,7 @@ on:
   # 當有人 push 程式碼時觸發
   push:
     # 只監聽 master branch
-    branches: [ "master" ]
+    branches: ["master"]
   workflow_dispatch:
 
   # 當有人建立或更新 Pull Request 時也觸發
@@ -61,6 +61,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 🧪 Debug secrets（加在這裡）
+      - name: Debug secrets
+        run: |
+          echo "VM_HOST = ${{ secrets.VM_HOST }}"
+          echo "VM_USER = ${{ secrets.VM_USER }}"
       # Step 5：SSH 到 GCP VM
       - name: Deploy to GCP VM
         uses: appleboy/ssh-action@v1.0.3
@@ -79,5 +84,5 @@ jobs:
             docker run -d \
               -p 8080:8080 \
               --name account-app \
-              --env-file /home/ubuntu/app.env \
+              --env-file /home/a57249683012/app.env \
               ghcr.io/nthueconintp/account-app:${{ github.sha }}
