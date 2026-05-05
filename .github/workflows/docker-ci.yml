@@ -44,12 +44,40 @@ jobs:
 
       # Step 3：用 Dockerfile.multistage 建立 Docker image
       # -f Dockerfile.multistage：指定使用哪個 Dockerfile
-      # -t ghcr.io/nthueconintp/account-app:latest：幫 image 取 tag
+      # -t ghcr.io/nthueconintp/account-app:${{ github.sha }}：幫 image 取 tag
       # .：build context 是目前 repo 根目錄
       - name: Build Docker image
-        run: docker build -f Dockerfile.multistage -t ghcr.io/nthueconintp/account-app:latest .
+        run: docker build -f Dockerfile.multistage -t ghcr.io/nthueconintp/account-app:${{ github.sha }} .
 
       # Step 4：把剛剛 build 好的 image 推到 GHCR
-      # 成功後，GHCR 裡會出現 account-app:latest
-      - name: Push Docker image to GHCR
-        run: docker push ghcr.io/nthueconintp/account-app:latest
+      - name: Push Docker image
+        run: docker push ghcr.io/nthueconintp/account-app:${{ github.sha }}
+
+  # =========================
+  # CD（部署到 GCP VM，可先保留不用也可以）
+  # =========================
+  deploy-to-gcp:
+    needs: docker-build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 5：SSH 到 GCP VM
+      - name: Deploy to GCP VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+
+          # 在 VM 上執行的指令
+          script: |
+            docker pull ghcr.io/nthueconintp/account-app:${{ github.sha }}
+
+            docker stop account-app || true
+            docker rm account-app || true
+
+            docker run -d \
+              -p 8080:8080 \
+              --name account-app \
+              --env-file /home/ubuntu/app.env \
+              ghcr.io/nthueconintp/account-app:${{ github.sha }}
