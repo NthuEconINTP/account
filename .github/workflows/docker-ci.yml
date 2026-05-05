@@ -8,6 +8,7 @@ on:
   push:
     # 只監聽 master branch
     branches: [ "master" ]
+  workflow_dispatch:
 
   # 當有人建立或更新 Pull Request 時也觸發
   pull_request:

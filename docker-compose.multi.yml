@@ -1,6 +1,6 @@
-###services:
-  ###app:
-    ###image: account-app:multi
+#services:
+  #app:
+    #image: account-app:multi
 
 
 services:

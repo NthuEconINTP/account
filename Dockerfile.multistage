@@ -13,6 +13,10 @@ WORKDIR /build
 # 這是 Maven 專案設定檔
 COPY pom.xml .
 
+
+# 先下載依賴（這層會被 cache）避免src改一行，整個maven dependency重抓
+RUN mvn dependency:go-offline
+
 # 把本機的 src 資料夾複製到 container 的 /build/src
 # 這是你的 Java 原始碼
 COPY src ./src
@@ -36,7 +40,9 @@ WORKDIR /app
 
 # 從第一階段 builder 的 /build/target/*.jar 複製 jar
 # 到第二階段目前目錄 /app，並改名成 app.jar
-COPY --from=builder /build/target/*.jar app.jar
+# COPY --from=builder /build/target/*.jar app.jar
+# 因為我有在pom.xml設定Fianl_name
+COPY --from=builder /build/target/Money_Flow.jar app.jar
 
 # 宣告這個 container 裡面的應用程式會使用 8080 port
 # 注意：EXPOSE 只是宣告，不等於真的對外開 port
